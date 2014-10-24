@@ -53,7 +53,7 @@ e12 = [('a', 1)]
 -- e13 --
 e13 :: Int -> Int -> Int
 e13 x y = x + y * y
--- why not e13 x y = x * x - x ?
+-- why not e13 x y = x * x - x ? because e13 x True would work
 
 -- e14 --
 e14 :: ([Char], [Float])
