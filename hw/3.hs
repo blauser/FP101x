@@ -65,8 +65,8 @@ safetail7
 -- works
 
 -- e2 --
-ortest :: (Bool -> Bool -> Bool) -> Bool
-ortest f = and [f True True, f True False, f False True, not (f False False)]
+orTest :: (Bool -> Bool -> Bool) -> Bool
+orTest f = and [f True True, f True False, f False True, not (f False False)]
 
 False `or0` False = False
 _ `or0` _ = True
@@ -106,8 +106,8 @@ True `or7` True = True
 -- works
 
 -- e3 --
-andtest :: (Bool -> Bool -> Bool) -> Bool
-andtest f = and [f True True, not (f True False), not (f False True), not (f False False)]
+andTest :: (Bool -> Bool -> Bool) -> Bool
+andTest f = and [f True True, not (f True False), not (f False True), not (f False False)]
 
 True `and0` True = True
 _ `and0` _ = False
