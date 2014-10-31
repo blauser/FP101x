@@ -1,3 +1,7 @@
+-- needed for e7
+import Data.Char 
+
+-- needed for e3
 factors :: Int -> [Int]
 factors n = [x | x <- [1..n], n `mod` x == 0]
 
@@ -114,3 +118,70 @@ scalarproduct2 xs ys = product (zipWith (+) xs ys)
 -- scalarproduct3 :: [Int] -> [Int] -> Int
 -- scalarproduct3 xs ys = sum (product [(x,y) | x <- xs, y <- ys])
 -- fails, product needs [Int] not [(Int,Int)]
+
+-- e7 --
+let2int :: Char -> Int
+let2int c = ord c - ord 'a'
+
+int2let :: Int -> Char
+int2let n = chr (ord 'a' + n)
+
+shift :: Int -> Char -> Char
+shift n c
+    | isLower c = int2let ((let2int c + n) `mod` 26)
+    | isUpper c = toUpper (int2let ((let2int (toLower c) + n) `mod` 26))
+    | otherwise = c
+   
+encode :: Int -> String -> String
+encode n xs = [shift n x | x <- xs]
+
+e7 = encode 13 "Think like a Fundamentalist Code like a Hacker"
+
+-- e8 --
+e8 = [(x, y) | x <- [1, 2], y <- [1, 2]]
+
+-- e9 --
+e9 = [x | x <- [1, 2, 3], y <- [1..x]]
+
+-- e10 --
+e10 = sum [x | x <- [1..10], even x]
+
+-- e11 --
+e11 = 1 : [x + 1 | x <- e11]
+
+-- e12 --
+riffle0 :: [a] -> [a] -> [a]
+riffle0 xs ys = concat [[x,y] | x <- xs, y <- ys]
+-- fails, too many elements
+
+riffle1 :: [a] -> [a] -> [a]
+riffle1 xs ys = concat [[x,y] | (x,y) <- xs `zip` ys]
+-- works
+
+-- riffle2 :: [a] -> [a] -> [a]
+-- riffle2 xs ys = [x,y | (x,y) <- xs `zip` ys]
+-- parse error
+
+-- riffle3 :: [a] -> [a] -> [a]
+-- riffle3 xs ys = [x : [y] | x <- xs, y <- ys]
+-- type error
+
+-- e13 --
+divides :: Int -> Int -> Bool
+divides n d = n `mod` d == 0
+
+divisors0 :: Int -> [Int]
+divisors0 x = [d | d <- [1..x], x `divides` d]
+-- works
+
+divisors1 :: Int -> [Int]
+divisors1 x = [d | d <- [1..x], d `divides` x]
+-- fails, arguments to divides are reversed
+
+divisors2 :: Int -> [Int]
+divisors2 x = [d | d <- [2..x], x `divides` d]
+-- fails, skips 1 as divisor
+
+-- divisors3 :: Int -> [Int]
+-- divisors3 x = [d | d <- [1..x], x divides d]
+-- type error, divides needs back quotes
