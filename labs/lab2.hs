@@ -19,7 +19,7 @@ toDigits n
 -- ===================================
 
 toDigitsRev :: Integer -> [Integer]
-toDigitsRev n = reverse (toDigits n)
+toDigitsRev = reverse . toDigits
 
 -- ===================================
 -- Ex. 2
@@ -43,7 +43,8 @@ sumDigits (n:ns) = sum (toDigits n) + sumDigits ns
 -- ===================================
 
 isValid :: Integer -> Bool
-isValid n = (sumDigits (doubleSecond (toDigitsRev n))) `mod` 10 == 0
+isValid n = checksum n `mod` 10 == 0
+    where checksum = sumDigits . doubleSecond . toDigitsRev 
 
 -- ===================================
 -- Ex. 5
