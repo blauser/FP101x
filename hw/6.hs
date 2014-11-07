@@ -1,11 +1,11 @@
 -- e0 --
 -- done by inspection
 
--- for e1-4
-testBoolFunc :: Eq c => (a -> b -> c) -> (a -> b -> c) -> a -> b -> Bool
-testBoolFunc f g p xs = f p xs == g p xs
+-- for e1-6
+testFunc :: Eq c => (a -> b -> c) -> (a -> b -> c) -> a -> b -> Bool
+testFunc f g p xs = f p xs == g p xs
 
--- e1 -- 
+-- e1 --
 all0 :: (a -> Bool) -> [a] -> Bool
 all0 p xs = and (map p xs)
 -- works
@@ -91,3 +91,109 @@ takeWhile2 p (x : xs)
 takeWhile3 :: (a -> Bool) -> [a] -> [a]
 takeWhile3 p = foldl (\ acc x -> if p x then x : acc else acc) []
 -- fails, builds the list backwards and doesn't stop for p x = False
+
+-- e4 --
+dropWhile0 :: (a -> Bool) -> [a] -> [a]
+dropWhile0 _ [] = []
+dropWhile0 p (x : xs)
+    | p x = dropWhile0 p xs
+    | otherwise = x : xs
+-- works
+
+dropWhile1 :: (a -> Bool) -> [a] -> [a]
+dropWhile1 _ [] = []
+dropWhile1 p (x : xs)
+    | p x = dropWhile1 p xs
+    | otherwise = xs
+-- fails, drops the first failure of p
+
+dropWhile2 :: (a -> Bool) -> [a] -> [a]
+dropWhile2 p = foldr (\ x acc -> if p x then acc else x : acc) []
+-- fails, continues dropping after first failure
+
+dropWhile3 :: (a -> Bool) -> [a] -> [a]
+dropWhile3 p = foldl add []
+    where add [] x = if p x then [] else [x]
+          add acc x = x : acc
+-- fails, reverses order of dropWhile p xs
+
+-- e5 --
+map0 :: (a -> b) -> [a] -> [b]
+map0 f = foldr (\ x xs -> xs ++ [f x]) []
+-- fails, reverses mapped list
+
+-- map1 :: (a -> b) -> [a] -> [b]
+-- map1 f = foldr (\ x xs -> f x ++ xs) []
+-- type error, f x is not a list, can't ++ it
+
+map2 :: (a -> b) -> [a] -> [b]
+map2 f = foldl (\ xs x -> f x : xs) []
+-- fails, reverses mapped list
+
+map3 :: (a -> b) -> [a] -> [b]
+map3 f = foldl (\ xs x -> xs ++ [f x]) []
+-- works
+
+-- e6 --
+filter0 :: (a -> Bool) -> [a] -> [a]
+filter0 p = foldl (\ xs x -> if p x then x : xs else xs) []
+-- fails, filters but reverses
+
+filter1 :: (a -> Bool) -> [a] -> [a]
+filter1 p = foldr (\ x xs -> if p x then x : xs else xs) []
+-- works
+
+filter2 :: (a -> Bool) -> [a] -> [a]
+filter2 p = foldr (\ x xs -> if p x then xs ++ [x] else xs) []
+-- fails, filters but reverses
+
+-- filter3 :: (a -> Bool) -> [a] -> [a]
+-- filter3 p = foldl (\ x xs -> if p x then xs ++ [x] else xs) []
+-- type error, x is bound to a list and xs is bound to a item
+
+-- e7 --
+dec2int0 :: [Integer] -> Integer
+dec2int0 = foldr (\ x y -> 10 * x + y) 0
+-- fails, is equivalent to sum . map (*10)
+
+dec2int1 :: [Integer] -> Integer
+dec2int1 = foldl (\ x y -> x + 10 * y) 0
+-- fails, is equivalent to sum . map (*10)
+
+dec2int2 :: [Integer] -> Integer
+dec2int2 = foldl (\ x y -> 10 * x + y) 0
+-- works
+
+dec2int3 :: [Integer] -> Integer
+dec2int3 = foldr (\ x y -> x + 10 * y) 0
+-- fails, builds number in reverse
+
+-- e8-10 --
+-- done by inspection
+
+-- needed for e11-13 --
+unfold :: (b -> Bool) -> (b -> a) -> (b -> b) -> b -> [a]
+unfold p h t x
+    | p x = []
+    | otherwise = h x : unfold p h t (t x)
+
+-- e11 --
+type Bit = Int
+
+chop8 :: [Bit] -> [[Bit]]
+chop8 = unfold null (take 8) (drop 8)
+
+-- e12 --
+map' f = unfold null (f . head) tail
+
+-- e13 --
+iterate' f = unfold (const False) id f
+
+-- e14-25 --
+-- done by inspection
+
+-- e26-29 --
+-- done with GHCi
+
+-- e30-31 --
+-- done by inspection
