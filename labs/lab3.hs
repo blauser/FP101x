@@ -9,7 +9,9 @@ module Lab3 where
 -- ===================================
 
 evens :: [Integer] -> [Integer]
-evens = filter even
+evens ns = [n | n <- ns, even n]
+-- or
+-- evens = filter even
 
 -- ===================================
 -- Ex. 3 - 4 
@@ -17,7 +19,9 @@ evens = filter even
 
 -- complete the following line with the correct type signature for this function
 squares :: Integer -> [Integer]
-squares n = map (^2) [1..n]
+squares n = [i * i | i <- [1..n]]
+-- or
+-- squares n = map (^2) [1..n]
 
 sumSquares :: Integer -> Integer
 sumSquares n = sum (squares n)
@@ -28,7 +32,9 @@ sumSquares n = sum (squares n)
 
 -- complete the following line with the correct type signature for this function
 squares' :: Integer -> Integer -> [Integer]
-squares' m n = map (^2) [(n+1)..(n+m)]
+squares' m n = [i * i | i <- [(n+1)..(n+m)]]
+-- or
+-- squares' m n = map (^2) [(n+1)..(n+m)]
 
 sumSquares' :: Integer -> Integer
 sumSquares' x = sum . uncurry squares' $ (x, x)
