@@ -40,19 +40,14 @@ poem = [ "Three Types for the Lisp-kings under the parentheses,"
 -- ===================================
 
 euclid :: (Int,  Int) -> Int
-euclid (x, y) 
-    | x == y = x
-    | otherwise = euclid (m - n, n)
-    where n = min x y
-          m = max x y
+euclid (x, y) = case x `compare` y of EQ -> x
+                                      LT -> euclid(x, y - x)
+                                      GT -> euclid(x - y, y)
 
 -- ===================================
 -- Ex. 3
 -- ===================================
 
 funkyMap :: (a -> b) -> (a -> b) -> [a] -> [b]
-funkyMap f g xs = funkyMap' f g xs
-    where funkyMap' f g [] = []
-          funkyMap' f g (x:xs) = f x : funkyMap'' f g xs
-          funkyMap'' f g [] = []
-          funkyMap'' f g (x:xs) = g x : funkyMap' f g xs
+funkyMap f g [] = []
+funkyMap f g (x:xs) = f x : funkyMap g f xs
