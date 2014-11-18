@@ -236,16 +236,14 @@ p8 n = do putStrLn . show $ n
 -- e9 --
 foldLeftM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
 foldLeftM f a [] = return a
-foldLeftM f a (x:xs) = do a' <- f a x
-                          foldLeftM f a' xs
+foldLeftM f a (x:xs) = f a x >>= \ a' -> foldLeftM f a' xs
 
 e9 = foldLeftM (\a b -> putChar b >> return (b : a ++ [b])) [] "haskell" >>= \r -> putStrLn r
 
 -- e10 --
 foldRightM :: Monad m => (a -> b -> m b) -> b -> [a] -> m b
 foldRightM f b [] = return b
-foldRightM f b (x:xs) = do b' <- foldRightM f b xs
-                           f x b'
+foldRightM f b (x:xs) = foldRightM f b xs >>= \ b' -> f x b'
 
 e10 = foldRightM (\a b -> putChar a >> return (a : b)) [] (show [1,3..10]) >>= \r -> putStrLn r
 
