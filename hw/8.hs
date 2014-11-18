@@ -121,3 +121,121 @@ sequence_6 ms = foldr (>>) (return ()) ms
 -- sequence_7 ms = foldr (>>) (return []) ms
 -- type error, return [] needs to be return ()
 
+-- e6 --
+sequence0 :: Monad m => [m a] -> m [a]
+sequence0 [] = return []
+sequence0 (m : ms) = m >>= \ a -> do as <- sequence0 ms
+                                     return (a : as)
+
+-- sequence1 :: Monad m => [m a] -> m [a]
+-- sequence1 ms = foldr func1 (return ()) ms
+--     where
+--         func1 :: (Monad m) => m a -> m [a] -> m [a]
+--         func1 m acc = do x <- m
+--                          xs <- acc
+--                          return (x : xs)
+-- type error, return () is of type m () not of type m [a]
+
+-- sequence2 :: Monad m => [m a] -> m [a]
+-- sequence2 ms = foldr func2 (return []) ms
+--     where
+--         func2 :: (Monad m) => m a -> m [a] -> m [a]
+--         func2 m acc = m : acc
+-- fails, monad not invoked in func2
+
+-- sequence3 :: Monad m => [m a] -> m [a]
+-- sequence3 [] = return []
+-- sequence3 (m : ms) = return (a : as)
+--     where
+--         a <- m
+--         as <- sequence3 ms
+-- fails, no do for do notation
+
+sequence4 :: Monad m => [m a] -> m [a]
+sequence4 ms = foldr func4 (return []) ms
+    where
+        func4 :: (Monad m) => m a -> m [a] -> m [a]
+        func4 m acc = do x <- m
+                         xs <- acc
+                         return (x : xs)
+
+-- sequence5 :: Monad m => [m a] -> m [a]
+-- sequence5 [] = return []
+-- sequence5 (m : ms) = m >> \ a ->
+--                             do as <- sequence5 ms
+--                                return (a : as)
+-- type error, (>>) doesn't return a value for the lambda expression to use
+
+-- sequence6 :: Monad m => [m a] -> m [a]
+-- sequence6 [] = return []
+-- sequence6 (m : ms) = m >>= \a ->
+--     as <- sequence6 ms
+--     return (a : as)
+-- fails, no do for do notation
+
+sequence7 :: Monad m => [m a] -> m [a]
+sequence7 [] = return []
+sequence7 (m : ms) = do a <- m
+                        as <- sequence7 ms
+                        return (a : as)
+
+-- e7 --
+mapM0 :: Monad m => (a -> m b) -> [a] -> m [b]
+mapM0 f as = sequence (map f as)
+
+mapM1 :: Monad m => (a -> m b) -> [a] -> m [b]
+mapM1 f [] = return []
+mapM1 f (a : as) = f a >>= \ b -> mapM1 f as >>= \ bs -> return (b : bs)
+
+-- mapM2 :: Monad m => (a -> m b) -> [a] -> m [b]
+-- mapM2 f as = sequence_ (map f as)
+-- type error, sequence_ discards values leaving () not [b]
+
+-- mapM3 :: Monad m => (a -> m b) -> [a] -> m [b]
+-- mapM3 f [] = return []
+-- mapM3 f (a : as) = f a >>= \ b -> mapM3 f as >> \ bs -> return (b : bs)
+-- type error, (>>) returns () but the lambda expersion expects a value
+
+-- mapM4 :: Monad m => (a -> m b) -> [a] -> m [b]
+-- mapM4 f [] = return []
+-- mapM4 f (a : as) = do 
+--                       f a -> b
+--                       mapM4 f as -> bs
+--                       return (b : bs)
+-- fails, arrows pointing the wrong way in do notation
+
+mapM5 :: Monad m => (a -> m b) -> [a] -> m [b]
+mapM5 f [] = return []
+mapM5 f (a : as) = do b <- f a
+                      bs <- mapM5 f as
+                      return (b : bs)
+
+mapM6 :: Monad m => (a -> m b) -> [a] -> m [b]
+mapM6 f [] = return []
+mapM6 f (a : as) = f a >>= \ b -> do bs <- mapM6 f as
+                                     return (b : bs)
+
+-- mapM7 :: Monad m => (a -> m b) -> [a] -> m [b]
+-- mapM7 f [] = return []
+-- mapM7 f (a : as) = f a >>= \ b -> do bs <- mapM7 f as
+--                                      return (bs ++ [b])
+-- fails, resulting list is reversed
+
+-- e8 --
+filterM' :: Monad m => (a -> m Bool) -> [a] -> m [a]
+filterM' _ [] = return []
+filterM' p (x : xs)
+    = do flag <- p x
+         ys <- filterM' p xs
+         if flag then return (x : ys) else return ys
+
+p8 :: Int -> IO Bool
+p8 n = do putStrLn . show $ n
+          return (even n)
+
+-- e9 --
+foldLeftM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
+foldLeftM f a [] = return a
+-- foldLeftM f a (x:xs) = foldLeftM f (f a x) xs
+-- not working yet
+
