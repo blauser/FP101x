@@ -236,6 +236,51 @@ p8 n = do putStrLn . show $ n
 -- e9 --
 foldLeftM :: Monad m => (a -> b -> m a) -> a -> [b] -> m a
 foldLeftM f a [] = return a
--- foldLeftM f a (x:xs) = foldLeftM f (f a x) xs
--- not working yet
+foldLeftM f a (x:xs) = do a' <- f a x
+                          foldLeftM f a' xs
 
+e9 = foldLeftM (\a b -> putChar b >> return (b : a ++ [b])) [] "haskell" >>= \r -> putStrLn r
+
+-- e10 --
+foldRightM :: Monad m => (a -> b -> m b) -> b -> [a] -> m b
+foldRightM f b [] = return b
+foldRightM f b (x:xs) = do b' <- foldRightM f b xs
+                           f x b'
+
+e10 = foldRightM (\a b -> putChar a >> return (a : b)) [] (show [1,3..10]) >>= \r -> putStrLn r
+
+-- e11 --
+liftM0 :: Monad m => (a -> b) -> m a -> m b
+liftM0 f m = do x <- m
+                return (f x)
+
+-- liftM1 :: Monad m => (a -> b) -> m a -> m b
+-- liftM1 f m = m >>= \ a -> f a
+-- type error, f a is of type b not m b
+
+liftM2 :: Monad m => (a -> b) -> m a -> m b
+liftM2 f m = m >>= \ a -> return (f a)
+
+-- liftM3 :: Monad m => (a -> b) -> m a -> m b
+-- liftM3 f m = return (f m)
+-- type error, m is of type m a, but f needs type a
+
+liftM4 :: Monad m => (a -> b) -> m a -> m b
+liftM4 f m = m >>= \ a -> m >>= \ b -> return (f a)
+-- fails, m a is bound twice, so double side-effects
+
+liftM5 :: Monad m => (a -> b) -> m a -> m b
+liftM5 f m = m >>= \ a -> m >>= \ b -> return (f b)
+-- fails, m a is bound twice, so double side-effects
+
+-- liftM6 :: Monad m => (a -> b) -> m a -> m b
+-- liftM6 f m = mapM f [m]
+-- type error, mapM needs (a -> m b) but f is (a -> b)
+
+-- liftM7 :: Monad m => (a -> b) -> m a -> m b
+-- liftM7 f m = m >> \ a -> return (f a)
+-- type error, (>>) doesn't pass along a value to the lambda expression
+
+t11 :: a -> IO a
+t11 x = do putStrLn "IO is happening!"
+           return x
