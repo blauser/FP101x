@@ -10,7 +10,10 @@ data Nat = Zero
          deriving Show
 
 -- QuickCheck setup --
--- maybe an Arbitrary Nat?
+instance Arbitrary Nat where
+    arbitrary = do
+        n <- choose (0,10)
+        return $ foldr (.) id (replicate n Succ) Zero
 
 -- e0 --
 natToInteger :: Nat -> Integer
@@ -141,10 +144,8 @@ add7 n (Succ m) = Succ (add7 m n)
 add7 n Zero = n
 
 -- QuickCheck testing --
-prop_add add' (NonNegative n) (NonNegative m) =
-    natToInteger (add' n' m') == natToInteger n' + natToInteger m'
-        where n' = integerToNat n
-              m' = integerToNat m
+prop_add add' n m =
+    natToInteger (add' n m) == natToInteger n + natToInteger m
 
 -- e3 --
 mult0 :: Nat -> Nat -> Nat
