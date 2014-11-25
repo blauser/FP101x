@@ -9,13 +9,14 @@ data Nat = Zero
          | Succ Nat
          deriving Show
 
--- QuickCheck setup --
+-- QuickCheck setup for Nat --
 instance Arbitrary Nat where
     arbitrary = do
-        n <- choose (0,10)
+        n <- choose (0,20)
         return $ foldr (.) id (replicate n Succ) Zero
 
     shrink Zero = []
+    shrink (Succ Zero) = [Zero]
     shrink (Succ n) = [Zero, n]
 
 -- e0 --
@@ -103,6 +104,10 @@ integerToNat6 = head . m
 integerToNat7 :: Integer -> Nat
 integerToNat7 = \ n -> genericLength [c | c <- show n, isDigit c]
 -- type error, genericLength doesn't return a Nat -}
+
+-- combined property --
+prop_int i2n n2i (NonNegative n) =
+    n == (n2i . i2n $ n)
 
 -- e2 --
 add :: Nat -> Nat -> Nat
