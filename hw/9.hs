@@ -15,6 +15,9 @@ instance Arbitrary Nat where
         n <- choose (0,10)
         return $ foldr (.) id (replicate n Succ) Zero
 
+    shrink Zero = []
+    shrink (Succ n) = [Zero, n]
+
 -- e0 --
 natToInteger :: Nat -> Integer
 natToInteger Zero = 0
@@ -168,10 +171,8 @@ mult3 m n = add m (mult3 m (Succ n))
 -- fails, infinite recursion
 
 -- QuickCheck testing --
-prop_mult mult' (NonNegative n) (NonNegative m) =
-    natToInteger (mult' n' m') == natToInteger n' * natToInteger m'
-        where n' = integerToNat n
-              m' = integerToNat m
+prop_mult mult' n m =
+    natToInteger (mult' n m) == natToInteger n * natToInteger m
 
 -- e4 --
 data NTree = NLeaf Integer
