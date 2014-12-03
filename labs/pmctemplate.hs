@@ -39,32 +39,37 @@ stop' = \_ -> Stop
 -- ===================================
 
 atom :: IO a -> Concurrent a
-atom x = Concurrent (\c -> Atom (x >>= \y -> return (c y)))
+atom x = Concurrent (\c -> Atom (x >>= return . c))
 
 atom' :: IO a -> ((a -> Action) -> Action)
-atom' x = \c -> Atom (x >>= \y -> return (c y))
+atom' x = \c -> Atom (x >>= return . c)
 
 -- ===================================
 -- Ex. 3
 -- ===================================
 
 fork :: Concurrent a -> Concurrent ()
-fork = error "You have to implement fork"
+fork ma = Concurrent (\c -> Fork (action ma) (c ()))
 
 par :: Concurrent a -> Concurrent a -> Concurrent a
-par = error "You have to implement par"
+par ma mb = Concurrent (\c -> Fork (action ma) (action mb))
 
 fork' :: ((a -> Action) -> Action) -> ((() -> Action) -> Action)
-fork' = error "that's an odd type signature"
+fork' ma = \c -> Fork (action' ma) (c ())
+
+par' :: ((a -> Action) -> Action) -> ((a -> Action) -> Action) -> ((a -> Action) -> Action)
+par' ma mb = \c -> Fork (action' ma) (action' mb)
 
 -- ===================================
 -- Ex. 4
 -- ===================================
 
 instance Monad Concurrent where
-    (Concurrent f) >>= g = error "You have to implement >>="
+    (Concurrent f) >>= g = error "still not working" -- Concurrent (\c -> f (\a -> g a c))
     return x = Concurrent (\c -> c x)
 
+bind :: ((a -> Action) -> Action) -> (a -> ((b -> Action) -> Action)) -> ((b -> Action) -> Action)
+bind ma f = \c -> ma (\a -> f a c)
 
 -- ===================================
 -- Ex. 5
