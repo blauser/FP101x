@@ -65,7 +65,8 @@ par' ma mb = \c -> Fork (action' ma) (action' mb)
 -- ===================================
 
 instance Monad Concurrent where
-    (Concurrent f) >>= g = error "still not working" -- Concurrent (\c -> f (\a -> g a c))
+    (Concurrent f) >>= g = Concurrent (\c -> f (\a -> uncurrent (g a) c))
+        where uncurrent (Concurrent h) = h
     return x = Concurrent (\c -> c x)
 
 bind :: ((a -> Action) -> Action) -> (a -> ((b -> Action) -> Action)) -> ((b -> Action) -> Action)
@@ -76,7 +77,11 @@ bind ma f = \c -> ma (\a -> f a c)
 -- ===================================
 
 roundRobin :: [Action] -> IO ()
-roundRobin = error "You have to implement roundRobin"
+roundRobin [] = return ()
+roundRobin (a:as) = case a of
+                    Atom io_a -> io_a >>= \a' -> roundRobin $ as ++ [a']
+                    Fork f1 f2 -> roundRobin $ as ++ [f1,f2]
+                    Stop -> roundRobin as
 
 -- ===================================
 -- Tests
